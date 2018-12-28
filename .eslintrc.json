@@ -1,0 +1,126 @@
+{
+    "parser": "babel-eslint",
+    "parserOptions": {
+        "sourceType": "module",
+        "allowImportExportEverywhere": false,
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "airbnb",
+        "plugin:prettier/recommended"
+    ],
+    "plugins": ["react", "jsx-a11y", "prettier"],
+    "rules": {
+        "prettier/prettier": [
+            "error",
+            {
+                "printWidth": 100,
+                "tabWidth": 4,
+                "semi": true,
+                "singleQuote": true,
+                "trailingComma": "all",
+                "bracketSpacing": true
+            }
+        ],
+        "no-confusing-arrow": "off",
+        "arrow-body-style": 0,
+        "class-methods-use-this": "off",
+        "consistent-return": "off",
+        "default-case": "off",
+        "func-names": "off",
+        "function-paren-newline": "off",
+        "global-require": "off",
+        "import/extensions": "off",
+        "react/jsx-filename-extension": "off",
+        "prefer-destructuring": "off",
+        "import/no-extraneous-dependencies": "off",
+        "import/no-dynamic-require": "off",
+        "import/prefer-default-export": "off",
+        "import/no-unresolved": [
+            "error",
+            {
+                "ignore": ["src/", "public/", "scss/"]
+            }
+        ],
+        "indent": [
+            "off",
+            4,
+            {
+                "SwitchCase": 1
+            }
+        ],
+        "jsx-a11y/anchor-is-valid": [
+            "warn",
+            {
+                "aspects": ["invalidHref"]
+            }
+        ],
+        "jsx-a11y/href-no-hash": "off",
+        "jsx-a11y/label-has-for": "off",
+        "jsx-a11y/no-static-element-interactions": "off",
+        "jsx-a11y/no-noninteractive-element-interactions": "off",
+        "jsx-a11y/click-events-have-key-events": "off",
+        "max-len": ["off"],
+        "arrow-parens": "off",
+        "object-curly-newline": "off",
+        "one-var-declaration-per-line": "off",
+        "no-param-reassign": "off",
+        "no-mixed-operators": "off",
+        "no-return-assign": "off",
+        "eqeqeq": "off",
+        "no-unneeded-ternary": "off",
+        "no-unused-expressions": ["error", { "allowTernary": true }],
+        "no-unused-vars": [
+            "error",
+            {
+                "argsIgnorePattern": "^_"
+            }
+        ],
+        "one-var": "off",
+        "react/forbid-prop-types": "off",
+        "react/jsx-closing-bracket-location": ["off"],
+        "react/jsx-indent": ["error", 4],
+        "react/jsx-boolean-value": "off",
+        "react/prop-types": "off",
+        "react/jsx-indent-props": ["error", 4],
+        "react/no-did-update-set-state": "off",
+        "react/no-find-dom-node": "off",
+        "react/no-array-index-key": "off",
+        "react/no-unescaped-entities": "off",
+        "react/require-default-props": "off",
+        "react/sort-comp": [
+            1,
+            {
+                "order": [
+                    "constructor",
+                    "commonStyles",
+                    "minMaxStyles",
+                    "propTypes",
+                    "defaultState",
+                    "lifecycle",
+                    "everything-else",
+                    "render"
+                ]
+            }
+        ]
+    },
+    "globals": {
+        "graphql": true,
+        "window": true,
+        "document": true
+    },
+    "overrides": [
+        {
+            "files": ["src/**/*.jsx", "src/**/*.js"],
+            "rules": {
+                "import/prefer-default-export": false,
+                "react/no-unescaped-entities": false,
+                "jsx-a11y/anchor-is-valid": false
+            }
+        }
+    ]
+}
