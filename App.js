@@ -30,8 +30,65 @@ export default class App extends Component {
         MULTIPLICATION_OPERATOR,
         DIVISION_OPERATOR,
     ];
-    handlePadPressed = text => {
+
+    isLastCharOperator = () => {
+        return this.operatorsPads.indexOf(this.state.calculationText.substr(-1)) !== -1;
     };
+
+    isLastCharDot = () => {
+        return this.state.calculationText.substr(-1) === DOT;
+    };
+
+    calculate = () => {
+        return eval(this.state.calculationText);
+    };
+
+    handleDotPad = () => {
+        if (this.isLastCharOperator() || this.isLastCharDot()) {
+            return;
+        }
+        this.setState({
+            calculationText: this.state.calculationText + DOT,
+        });
+    };
+
+    handlePadPressed = text => {
+        const { calculationText } = this.state;
+
+        if (this.isLastCharOperator()) {
+            switch (text) {
+                case ADDITION_OPERATOR:
+                case SUBTRACTION_OPERATOR:
+                case MULTIPLICATION_OPERATOR:
+                case DIVISION_OPERATOR:
+                    this.setState({
+                        calculationText: calculationText.slice(0, -1) + text,
+                    });
+                    return;
+            }
+        }
+
+        switch (text) {
+            case CALCULATE_OPERATOR:
+                this.setState({
+                    resultText: this.calculate(),
+                });
+                return;
+
+            case DELETE_OPERATOR:
+                this.setState({ calculationText: this.state.calculationText.slice(0, -1) });
+                return;
+
+            case DOT:
+                this.handleDotPad();
+                return;
+        }
+
+        this.setState({
+            calculationText: this.state.calculationText + text,
+        });
+    };
+
     renderNumbersPad = () => {
         const numbersPads = this.numbersPads;
         return numbersPads.map((row, index) => (
