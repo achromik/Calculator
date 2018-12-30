@@ -1,38 +1,40 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
-const DELETE_OPERATOR = '⌫';
-const ADDITION_OPERATOR = '+';
-const SUBTRACTION_OPERATOR = '-';
-const MULTIPLICATION_OPERATOR = '*';
-const DIVISION_OPERATOR = '/';
-const CALCULATE_OPERATOR = '=';
-const DOT = '.';
-const ZERO = '0';
+import {
+    ADDITION_OPERATOR,
+    SUBTRACTION_OPERATOR,
+    MULTIPLICATION_OPERATOR,
+    DIVISION_OPERATOR,
+    CALCULATE_OPERATOR,
+    DELETE_OPERATOR,
+    DOT,
+    ZERO,
+} from './src/operators';
 
 export default class App extends Component {
     state = {
         calculationText: '',
+        displayText: '',
         resultText: '',
     };
 
-    numbersPads = [
-        ['1', '2', '3'],
-        ['4', '5', '6'],
-        ['7', '8', '9'],
-        [DOT, ZERO, CALCULATE_OPERATOR],
-    ];
+    numbersPads = [['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']];
+
+    numbersBottomOperatorsPads = [DOT, ZERO, CALCULATE_OPERATOR];
 
     operatorsPads = [
         DELETE_OPERATOR,
-        ADDITION_OPERATOR,
-        SUBTRACTION_OPERATOR,
-        MULTIPLICATION_OPERATOR,
         DIVISION_OPERATOR,
+        MULTIPLICATION_OPERATOR,
+        SUBTRACTION_OPERATOR,
+        ADDITION_OPERATOR,
     ];
 
     isLastCharOperator = () => {
-        return this.operatorsPads.indexOf(this.state.calculationText.substr(-1)) !== -1;
+        return this.operatorsPads.find(
+            pad => pad.operand === this.state.calculationText.substr(-1),
+        );
     };
 
     isLastCharDot = () => {
@@ -44,66 +46,130 @@ export default class App extends Component {
     };
 
     handleDotPad = () => {
+        const { calculationText, displayText } = this.state;
+        const leadingZero = ZERO;
+
         if (this.isLastCharOperator() || this.isLastCharDot()) {
             return;
         }
+
+        if (calculationText.length === 0) {
+            this.setState({
+                calculationText: leadingZero + DOT,
+                displayText: leadingZero + DOT,
+            });
+            return;
+        }
         this.setState({
-            calculationText: this.state.calculationText + DOT,
+            calculationText: calculationText + DOT,
+            displayText: displayText + DOT,
+        });
+    };
+
+    handleMathPads = text => {
+        const { calculationText, displayText } = this.state;
+
+        if (this.isLastCharOperator()) {
+            this.setState({
+                calculationText: calculationText.slice(0, -1) + text.operand,
+                displayText: displayText.slice(0, -1) + text.char,
+            });
+        } else {
+            this.setState({
+                calculationText: calculationText + text.operand,
+                displayText: displayText + text.char,
+            });
+        }
+    };
+
+    handleCalculate = () => {
+        this.setState({
+            resultText: this.calculate(),
+        });
+    };
+
+    handleDeleteOperator = () => {
+        const { calculationText, displayText } = this.state;
+
+        this.setState({
+            calculationText: calculationText.slice(0, -1),
+            displayText: displayText.slice(0, -1),
+        });
+    };
+
+    handleZeroPad = text => {
+        const { calculationText, displayText } = this.state;
+        if (calculationText.length === 1 && calculationText === ZERO) return;
+        this.setState({
+            calculationText: calculationText + text,
+            displayText: displayText + text,
         });
     };
 
     handlePadPressed = text => {
-        const { calculationText } = this.state;
-
-        if (this.isLastCharOperator()) {
-            switch (text) {
-                case ADDITION_OPERATOR:
-                case SUBTRACTION_OPERATOR:
-                case MULTIPLICATION_OPERATOR:
-                case DIVISION_OPERATOR:
-                    this.setState({
-                        calculationText: calculationText.slice(0, -1) + text,
-                    });
-                    return;
-            }
-        }
+        const { calculationText, displayText } = this.state;
 
         switch (text) {
             case CALCULATE_OPERATOR:
-                this.setState({
-                    resultText: this.calculate(),
-                });
-                return;
+                this.handleCalculate();
+                break;
 
             case DELETE_OPERATOR:
-                this.setState({ calculationText: this.state.calculationText.slice(0, -1) });
-                return;
+                this.handleDeleteOperator();
+                break;
+
+            case ADDITION_OPERATOR:
+            case SUBTRACTION_OPERATOR:
+            case MULTIPLICATION_OPERATOR:
+            case DIVISION_OPERATOR:
+                this.handleMathPads(text);
+                break;
 
             case DOT:
                 this.handleDotPad();
-                return;
-        }
+                break;
 
-        this.setState({
-            calculationText: this.state.calculationText + text,
-        });
+            case ZERO:
+                this.handleZeroPad(text);
+                break;
+
+            default:
+                this.setState({
+                    calculationText: calculationText + text,
+                    displayText: displayText + text,
+                });
+        }
+        return;
     };
 
     renderNumbersPad = () => {
         const numbersPads = this.numbersPads;
-        return numbersPads.map((row, index) => (
-            <View key={index} style={styles.row}>
-                {row.map(key => (
+        return [
+            numbersPads.map((row, index) => (
+                <View key={index} style={styles.row}>
+                    {row.map(pad => (
+                        <TouchableOpacity
+                            style={styles.pad}
+                            key={pad}
+                            onPress={() => this.handlePadPressed(pad)}
+                        >
+                            <Text style={styles.padText}>{pad}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            )),
+            <View key={'bottom-pads'} style={styles.row}>
+                {this.numbersBottomOperatorsPads.map((pad, index) => (
                     <TouchableOpacity
                         style={styles.pad}
-                        key={key}
-                        onPress={() => this.handlePadPressed(key)}
+                        key={index}
+                        onPress={() => this.handlePadPressed(pad)}
                     >
-                        <Text style={styles.padText}>{key}</Text>
+                        <Text style={styles.padText}>{pad}</Text>
                     </TouchableOpacity>
                 ))}
-            </View>
-        ));
+            </View>,
+        ];
     };
 
     renderOperatorsPad = () => {
@@ -114,18 +180,18 @@ export default class App extends Component {
                 key={index}
                 onPress={() => this.handlePadPressed(pad)}
             >
-                <Text style={styles.padText}>{pad}</Text>
+                <Text style={styles.padText}>{pad.char}</Text>
             </TouchableOpacity>
         ));
     };
 
     render() {
-        const { calculationText, resultText } = this.state;
+        const { displayText, resultText } = this.state;
 
         return (
             <View style={styles.container}>
                 <View style={styles.calculationText}>
-                    <Text style={styles.text}>{calculationText}</Text>
+                    <Text style={styles.text}>{displayText}</Text>
                 </View>
                 <View style={styles.resultText}>
                     <Text style={[styles.text, styles.result]}>{resultText}</Text>
