@@ -11,12 +11,17 @@ import {
     DOT,
     ZERO,
 } from './src/operators';
+import { numberRegExp } from './src/numberRegExp';
+
+const initialCalculatorState = {
+    calculationText: '0',
+    displayText: '0',
+    resultText: '',
+};
 
 export default class App extends Component {
     state = {
-        calculationText: '',
-        displayText: '',
-        resultText: '',
+        ...initialCalculatorState,
     };
 
     numbersPads = [['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']];
@@ -41,6 +46,19 @@ export default class App extends Component {
         return this.state.calculationText.substr(-1) === DOT;
     };
 
+    isLastNumberZero = () => {
+        const { calculationText } = this.state;
+
+        const lastNumber = calculationText.match(numberRegExp);
+        return lastNumber && lastNumber[0] === ZERO;
+    };
+
+    clearCalculator = () => {
+        this.setState({
+            ...initialCalculatorState,
+        });
+    };
+
     calculate = () => {
         return eval(this.state.calculationText);
     };
@@ -50,7 +68,7 @@ export default class App extends Component {
         const leadingZero = ZERO;
 
         const isLastNumberContainDot = () => {
-            const lastNumber = calculationText.match(/\d*\.\d*$/);
+            const lastNumber = calculationText.match(numberRegExp);
             return lastNumber && lastNumber[0].contains(DOT);
         };
 
@@ -96,14 +114,26 @@ export default class App extends Component {
         }
     };
 
-    handleCalculate = () => {
+    handleCalculatePad = () => {
         this.setState({
             resultText: this.calculate(),
         });
     };
 
     handleDeleteOperator = () => {
-        const { calculationText, displayText } = this.state;
+        const { calculationText, displayText, resultText } = this.state;
+
+        if (resultText) {
+            this.clearCalculator();
+            return;
+        }
+
+        if (calculationText.length === 1) {
+            this.setState({
+                ...initialCalculatorState,
+            });
+            return;
+        }
 
         this.setState({
             calculationText: calculationText.slice(0, -1),
@@ -114,7 +144,8 @@ export default class App extends Component {
     handleZeroPad = text => {
         const { calculationText, displayText } = this.state;
 
-        if (calculationText.length === 1 && calculationText === ZERO) return;
+        if (this.isLastNumberZero()) return;
+
         this.setState({
             calculationText: calculationText + text,
             displayText: displayText + text,
@@ -126,7 +157,7 @@ export default class App extends Component {
 
         switch (text) {
             case CALCULATE_OPERATOR:
-                this.handleCalculate();
+                this.handleCalculatePad();
                 break;
 
             case DELETE_OPERATOR:
@@ -149,6 +180,14 @@ export default class App extends Component {
                 break;
 
             default:
+                if (this.isLastNumberZero()) {
+                    this.setState({
+                        calculationText: calculationText.slice(0, -1) + text,
+                        displayText: displayText.slice(0, -1) + text,
+                    });
+                    return;
+                }
+
                 this.setState({
                     calculationText: calculationText + text,
                     displayText: displayText + text,
