@@ -239,6 +239,18 @@ export default class App extends Component {
         ));
     };
 
+    copyResultToCalculation = () => {
+        const { resultText } = this.state;
+
+        if (resultText) {
+            this.setState({
+                calculationText: '' + resultText,
+                displayText: '' + resultText,
+                resultText: '',
+            });
+        }
+    };
+
     render() {
         const { displayText, resultText } = this.state;
 
@@ -247,8 +259,13 @@ export default class App extends Component {
                 <View style={styles.calculationText}>
                     <Text style={styles.text}>{displayText}</Text>
                 </View>
-                <View style={styles.resultText}>
-                    <Text style={[styles.text, styles.result]}>{resultText}</Text>
+                <View style={styles.result}>
+                    <TouchableOpacity
+                        style={styles.resultTouch}
+                        onPress={this.copyResultToCalculation}
+                    >
+                        <Text style={[styles.text, styles.resultText]}>{resultText}</Text>
+                    </TouchableOpacity>
                 </View>
                 <View style={styles.keyboard}>
                     <View style={styles.numbers}>{this.renderNumbersPad()}</View>
@@ -262,9 +279,10 @@ export default class App extends Component {
 const styles = StyleSheet.create({
     text: {
         fontSize: 30,
-        padding: 20,
+        paddingLeft: 20,
+        paddingRight: 20,
     },
-    result: {
+    resultText: {
         fontSize: 25,
     },
     container: {
@@ -291,9 +309,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'flex-end',
     },
-    resultText: {
+    result: {
         flex: 1,
-        backgroundColor: 'white',
+        backgroundColor: '#ddd',
+    },
+    resultTouch: {
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'flex-end',
     },
