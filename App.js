@@ -49,7 +49,20 @@ export default class App extends Component {
         const { calculationText, displayText } = this.state;
         const leadingZero = ZERO;
 
-        if (this.isLastCharOperator() || this.isLastCharDot()) {
+        const isLastNumberContainDot = () => {
+            const lastNumber = calculationText.match(/\d*\.\d*$/);
+            return lastNumber && lastNumber[0].contains(DOT);
+        };
+
+        if (this.isLastCharOperator()) {
+            this.setState({
+                calculationText: calculationText + leadingZero + DOT,
+                displayText: displayText + leadingZero + DOT,
+            });
+            return;
+        }
+
+        if (this.isLastCharDot() || isLastNumberContainDot()) {
             return;
         }
 
@@ -60,6 +73,7 @@ export default class App extends Component {
             });
             return;
         }
+
         this.setState({
             calculationText: calculationText + DOT,
             displayText: displayText + DOT,
@@ -99,6 +113,7 @@ export default class App extends Component {
 
     handleZeroPad = text => {
         const { calculationText, displayText } = this.state;
+
         if (calculationText.length === 1 && calculationText === ZERO) return;
         this.setState({
             calculationText: calculationText + text,
